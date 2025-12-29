@@ -42,6 +42,12 @@ function init() {
         document.documentElement.classList.add('dark');
     }
     
+    // Session upgrade for owner
+    if (currentUser && currentUser.email === 'jvdb' && !currentUser.isOwner) {
+        currentUser.isOwner = true;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+    
     updateAuthUI();
     setupEventListeners();
     renderScripts();
