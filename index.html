@@ -26,8 +26,11 @@
 
     <!-- Login Modal -->
     <div id="loginModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden modal-enter">
             <div class="p-8">
+                <div class="flex justify-center mb-6">
+                    <img src="assets/logo.png" alt="Logo" class="w-16 h-16 rounded-2xl logo-float">
+                </div>
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-2xl font-bold">Welcome Back</h2>
                     <button onclick="toggleLoginModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -177,7 +180,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3 font-bold text-xl tracking-tight">
-                    <img src="assets/logo.png" alt="ScriptVault Logo" class="w-10 h-10 rounded-xl object-contain">
+                    <img src="assets/logo.png" alt="ScriptVault Logo" class="w-10 h-10 rounded-xl object-contain logo-hover-spin cursor-pointer">
                     <span>ScriptVault</span>
                 </div>
                 <div class="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -203,6 +206,12 @@
         </div>
         
         <div class="max-w-4xl mx-auto text-center reveal">
+            <div class="flex justify-center mb-8">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full logo-pulse"></div>
+                    <img src="assets/logo.png" alt="ScriptVault Logo" class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] shadow-2xl relative z-10 logo-float">
+                </div>
+            </div>
             <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
                 Elevate Your Web <span class="text-indigo-600">Experience</span>
             </h1>
@@ -234,7 +243,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 dark:border-slate-800 py-12 mt-20">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <img src="assets/logo.png" alt="ScriptVault Logo" class="w-12 h-12 mx-auto mb-6 rounded-2xl object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all">
+            <img src="assets/logo.png" alt="ScriptVault Logo" class="w-12 h-12 mx-auto mb-6 rounded-2xl object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all logo-pulse">
             <p class="text-slate-500 text-sm mb-8">© 2024 ScriptVault Repository. All rights reserved.</p>
             <div class="flex justify-center gap-6">
                 <button onclick="showToast('Twitter link coming soon', 'info')" class="text-slate-400 hover:text-indigo-600 transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></button>
