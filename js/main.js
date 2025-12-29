@@ -31,6 +31,8 @@ const defaultScripts = [
 
 // --- STATE MANAGEMENT ---
 let scripts = JSON.parse(localStorage.getItem('scripts')) || defaultScripts;
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let categories = JSON.parse(localStorage.getItem('categories')) || ["Automation", "UI/UX", "Developer"];
 let currentFilter = 'All';
 let searchQuery = '';
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -48,11 +50,89 @@ function init() {
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
     
+    renderCategoryFilters();
     updateAuthUI();
     setupEventListeners();
     renderScripts();
     lucide.createIcons();
     setupScrollReveal();
+}
+
+function renderCategoryFilters() {
+    const container = document.getElementById('categoryFilters');
+    const select = document.getElementById('scriptCategory');
+    if (!container) return;
+
+    // Update main filters
+    const filterHtml = `
+        <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold ${currentFilter === 'All' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-800'}" data-category="All">All</button>
+        ${categories.map(cat => `
+            <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold ${currentFilter === cat ? 'bg-indigo-600 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-800'}" data-category="${cat}">${cat}</button>
+        `).join('')}
+        <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold ${currentFilter === 'Favorites' ? 'bg-red-500 text-white' : 'hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500'} flex items-center gap-2" data-category="Favorites">
+            <i data-lucide="heart" class="w-4 h-4"></i> Favorites
+        </button>
+    `;
+    container.innerHTML = filterHtml;
+
+    // Update select in modal
+    if (select) {
+        select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    }
+
+    // Re-attach listeners
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.onclick = () => {
+            currentFilter = btn.dataset.category;
+            renderCategoryFilters();
+            renderScripts();
+        };
+    });
+    lucide.createIcons();
+}
+
+function toggleCategoryManager() {
+    const modal = document.getElementById('categoryModal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+        renderCategoryManager();
+    }
+}
+
+function renderCategoryManager() {
+    const list = document.getElementById('categoryList');
+    list.innerHTML = categories.map(cat => `
+        <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+            <span class="font-medium">${cat}</span>
+            <button onclick="deleteCategory('${cat}')" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-all">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
+
+function addCategory() {
+    const input = document.getElementById('newCategoryInput');
+    const name = input.value.trim();
+    if (name && !categories.includes(name)) {
+        categories.push(name);
+        localStorage.setItem('categories', JSON.stringify(categories));
+        input.value = '';
+        renderCategoryManager();
+        renderCategoryFilters();
+        showToast(`Category "${name}" added`);
+    }
+}
+
+function deleteCategory(name) {
+    if (confirm(`Are you sure? Scripts in "${name}" will remain but the category will be removed from filters.`)) {
+        categories = categories.filter(c => c !== name);
+        localStorage.setItem('categories', JSON.stringify(categories));
+        renderCategoryManager();
+        renderCategoryFilters();
+        showToast(`Category "${name}" removed`, 'info');
+    }
 }
 
 function toggleDarkMode() {
@@ -244,11 +324,13 @@ function handleScriptSubmit(event) {
     const url = document.getElementById('scriptUrl').value;
     const isTampermonkey = document.getElementById('scriptIsTampermonkey').checked;
     const content = document.getElementById('scriptContent').value;
+    const tags = document.getElementById('scriptTags').value.split(',').map(t => t.trim()).filter(t => t);
+    const previewUrl = document.getElementById('scriptPreviewUrl').value;
 
     if (id) {
         // Edit
         const index = scripts.findIndex(s => s.id == id);
-        scripts[index] = { ...scripts[index], title, category, desc, url, isTampermonkey, content };
+        scripts[index] = { ...scripts[index], title, category, desc, url, isTampermonkey, content, tags, previewUrl };
         showToast('Script updated successfully');
     } else {
         // Add
@@ -259,7 +341,10 @@ function handleScriptSubmit(event) {
             desc,
             url: url || 'https://github.com',
             isTampermonkey,
-            content
+            content,
+            tags,
+            previewUrl,
+            copyCount: 0
         };
         scripts.push(newScript);
         showToast('New script added');
@@ -283,6 +368,8 @@ function editScript(id) {
     document.getElementById('scriptUrl').value = script.url;
     document.getElementById('scriptIsTampermonkey').checked = script.isTampermonkey;
     document.getElementById('scriptContent').value = script.content;
+    document.getElementById('scriptTags').value = (script.tags || []).join(', ');
+    document.getElementById('scriptPreviewUrl').value = script.previewUrl || '';
 
     toggleScriptFormModal();
 }
@@ -307,24 +394,6 @@ function setupEventListeners() {
         });
     }
 
-    // Filters
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentFilter = btn.getAttribute('data-category');
-            
-            // Update UI
-            filterBtns.forEach(b => {
-                b.classList.remove('bg-indigo-600', 'text-white');
-                b.classList.add('bg-white', 'dark:bg-slate-900', 'border', 'border-slate-200', 'dark:border-slate-800');
-            });
-            btn.classList.add('bg-indigo-600', 'text-white');
-            btn.classList.remove('bg-white', 'dark:bg-slate-900', 'border', 'border-slate-200', 'dark:border-slate-800');
-            
-            renderScripts();
-        });
-    });
-
     // Explore Button
     const exploreBtn = document.getElementById('exploreBtn');
     if (exploreBtn) {
@@ -339,9 +408,11 @@ function renderScripts() {
     if (!grid) return;
 
     const filtered = scripts.filter(script => {
-        const matchesFilter = currentFilter === 'All' || script.category === currentFilter;
+        const matchesFilter = currentFilter === 'All' || 
+                            (currentFilter === 'Favorites' ? favorites.includes(script.id) : script.category === currentFilter);
         const matchesSearch = script.title.toLowerCase().includes(searchQuery) || 
-                            script.desc.toLowerCase().includes(searchQuery);
+                            script.desc.toLowerCase().includes(searchQuery) ||
+                            (script.tags && script.tags.some(t => t.toLowerCase().includes(searchQuery)));
         return matchesFilter && matchesSearch;
     });
 
@@ -353,36 +424,109 @@ function renderScripts() {
             </div>
         `;
     } else {
-        grid.innerHTML = filtered.map((script, index) => `
-            <div class="script-card glass p-6 rounded-3xl flex flex-col h-full stagger-card" style="animation-delay: ${index * 0.1}s">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
-                        <i data-lucide="${script.isTampermonkey ? 'zap' : 'code'}" class="w-6 h-6"></i>
+        grid.innerHTML = filtered.map((script, index) => {
+            const isFavorited = favorites.includes(script.id);
+            const tags = script.tags || [];
+            
+            return `
+                <div class="script-card glass rounded-3xl flex flex-col h-full stagger-card overflow-hidden" style="animation-delay: ${index * 0.1}s">
+                    ${script.previewUrl ? `
+                        <div class="h-40 w-full overflow-hidden relative group">
+                            <img src="${script.previewUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.style.display='none'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                        </div>
+                    ` : ''}
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
+                                <i data-lucide="${script.isTampermonkey ? 'zap' : 'code'}" class="w-6 h-6"></i>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="toggleFavorite(${script.id})" class="p-2 rounded-xl ${isFavorited ? 'bg-red-50 text-red-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} hover:scale-110 transition-all">
+                                    <i data-lucide="heart" class="w-4 h-4 ${isFavorited ? 'fill-current' : ''}"></i>
+                                </button>
+                                <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-500">
+                                    ${script.category}
+                                </span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">${script.title}</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-grow">${script.desc}</p>
+                        
+                        ${tags.length > 0 ? `
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                ${tags.map(tag => `<span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md">#${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+
+                        <div class="flex items-center justify-between mb-6 text-xs text-slate-400 font-medium">
+                            <span class="flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> ${script.copyCount || 0} copies</span>
+                            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(script.id).toLocaleDateString()}</span>
+                        </div>
+
+                        <div class="flex gap-3 mt-auto">
+                            <button onclick="viewCode(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale">
+                                <i data-lucide="eye" class="w-4 h-4"></i> View Code
+                            </button>
+                            <a href="${script.url}" target="_blank" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors click-scale">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </a>
+                        </div>
                     </div>
-                    <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-500">
-                        ${script.category}
-                    </span>
                 </div>
-                <h3 class="text-xl font-bold mb-2">${script.title}</h3>
-                <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 flex-grow">${script.desc}</p>
-                <div class="flex gap-3 mt-auto">
-                    <button onclick="copyScript(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale">
-                        <i data-lucide="copy" class="w-4 h-4"></i> Copy Code
-                    </button>
-                    <a href="${script.url}" target="_blank" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors click-scale">
-                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                    </a>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
     lucide.createIcons();
+}
+
+function toggleFavorite(id) {
+    const index = favorites.indexOf(id);
+    if (index > -1) {
+        favorites.splice(index, 1);
+        showToast('Removed from favorites', 'info');
+    } else {
+        favorites.push(id);
+        showToast('Added to favorites');
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderScripts();
+}
+
+function viewCode(id) {
+    const script = scripts.find(s => s.id == id);
+    if (!script) return;
+
+    const modal = document.getElementById('viewCodeModal');
+    const codeDisplay = document.getElementById('codeDisplay');
+    const copyBtn = document.getElementById('copyCodeBtn');
+    const title = document.getElementById('viewCodeTitle');
+
+    title.innerText = script.title;
+    codeDisplay.textContent = script.content;
+    Prism.highlightElement(codeDisplay);
+
+    copyBtn.onclick = () => {
+        copyScript(script.id);
+    };
+
+    modal.classList.remove('hidden');
+    modal.querySelector('div').classList.add('modal-enter');
+}
+
+function toggleViewCodeModal() {
+    const modal = document.getElementById('viewCodeModal');
+    modal.classList.add('hidden');
 }
 
 function copyScript(id) {
     const script = scripts.find(s => s.id === id);
     if (script) {
         navigator.clipboard.writeText(script.content).then(() => {
+            // Increment copy count
+            script.copyCount = (script.copyCount || 0) + 1;
+            localStorage.setItem('scripts', JSON.stringify(scripts));
+            renderScripts();
             showToast('Script copied to clipboard!');
         });
     }
