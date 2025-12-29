@@ -120,29 +120,19 @@ function showToast(message, type = 'success') {
     };
 }
 
-function toggleAuthMode() {
-    isLoginMode = !isLoginMode;
-    const title = document.getElementById('modalTitle');
-    const submitBtn = document.getElementById('authSubmitBtn');
-    const toggleLink = document.getElementById('authToggle');
-
-    if (isLoginMode) {
-        title.innerText = 'Welcome Back';
-        submitBtn.innerText = 'Sign In';
-        toggleLink.innerText = 'Create Account';
-    } else {
-        title.innerText = 'Create Account';
-        submitBtn.innerText = 'Sign Up';
-        toggleLink.innerText = 'Sign In';
-    }
-}
-
 function handleAuth(event) {
     event.preventDefault();
     const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
     
-    // Simple mock auth
-    currentUser = { email: email, name: email.split('@')[0] };
+    // Owner check
+    if (email === 'jvdb' && password === '978123') {
+        currentUser = { email: 'jvdb', name: 'Owner', isOwner: true };
+    } else {
+        // Simple mock auth for others
+        currentUser = { email: email, name: email.split('@')[0], isOwner: false };
+    }
+    
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
     toggleLoginModal();
@@ -154,6 +144,7 @@ function handleLogout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     updateAuthUI();
+    showToast('Logged out successfully');
 }
 
 function updateAuthUI() {
@@ -163,6 +154,11 @@ function updateAuthUI() {
     if (currentUser) {
         container.innerHTML = `
             <div class="flex items-center gap-4">
+                ${currentUser.isOwner ? `
+                    <button onclick="toggleOwnerModal()" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                    </button>
+                ` : ''}
                 <span class="text-sm font-medium hidden sm:block">Hi, ${currentUser.name}</span>
                 <button onclick="handleLogout()" class="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
                     Logout
@@ -175,6 +171,123 @@ function updateAuthUI() {
                 Sign In
             </button>
         `;
+    }
+    lucide.createIcons();
+}
+
+// --- OWNER DASHBOARD LOGIC ---
+function toggleOwnerModal() {
+    const modal = document.getElementById('ownerModal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+        renderOwnerDashboard();
+    }
+}
+
+function renderOwnerDashboard() {
+    const table = document.getElementById('ownerScriptTable');
+    const totalScripts = document.getElementById('statsTotalScripts');
+    const totalCategories = document.getElementById('statsTotalCategories');
+
+    totalScripts.innerText = scripts.length;
+    const categories = [...new Set(scripts.map(s => s.category))];
+    totalCategories.innerText = categories.length;
+
+    table.innerHTML = scripts.map(script => `
+        <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+            <td class="py-4 px-2 text-sm font-medium">${script.title}</td>
+            <td class="py-4 px-2 text-sm text-slate-500">${script.category}</td>
+            <td class="py-4 px-2 text-sm">
+                <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase">
+                    ${script.isTampermonkey ? 'Tampermonkey' : 'Standard'}
+                </span>
+            </td>
+            <td class="py-4 px-2 text-right">
+                <div class="flex justify-end gap-2">
+                    <button onclick="editScript(${script.id})" class="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-indigo-600 rounded-lg transition-colors">
+                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteScript(${script.id})" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 rounded-lg transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    lucide.createIcons();
+}
+
+function toggleScriptFormModal() {
+    const modal = document.getElementById('scriptFormModal');
+    modal.classList.toggle('hidden');
+}
+
+function showAddScriptForm() {
+    document.getElementById('scriptFormTitle').innerText = 'Add New Script';
+    document.getElementById('editScriptId').value = '';
+    document.getElementById('scriptForm').reset();
+    toggleScriptFormModal();
+}
+
+function handleScriptSubmit(event) {
+    event.preventDefault();
+    const id = document.getElementById('editScriptId').value;
+    const title = document.getElementById('scriptTitle').value;
+    const category = document.getElementById('scriptCategory').value;
+    const desc = document.getElementById('scriptDesc').value;
+    const url = document.getElementById('scriptUrl').value;
+    const isTampermonkey = document.getElementById('scriptIsTampermonkey').checked;
+    const content = document.getElementById('scriptContent').value;
+
+    if (id) {
+        // Edit
+        const index = scripts.findIndex(s => s.id == id);
+        scripts[index] = { ...scripts[index], title, category, desc, url, isTampermonkey, content };
+        showToast('Script updated successfully');
+    } else {
+        // Add
+        const newScript = {
+            id: Date.now(),
+            title,
+            category,
+            desc,
+            url: url || 'https://github.com',
+            isTampermonkey,
+            content
+        };
+        scripts.push(newScript);
+        showToast('New script added');
+    }
+
+    localStorage.setItem('scripts', JSON.stringify(scripts));
+    toggleScriptFormModal();
+    renderOwnerDashboard();
+    renderScripts();
+}
+
+function editScript(id) {
+    const script = scripts.find(s => s.id == id);
+    if (!script) return;
+
+    document.getElementById('scriptFormTitle').innerText = 'Edit Script';
+    document.getElementById('editScriptId').value = script.id;
+    document.getElementById('scriptTitle').value = script.title;
+    document.getElementById('scriptCategory').value = script.category;
+    document.getElementById('scriptDesc').value = script.desc;
+    document.getElementById('scriptUrl').value = script.url;
+    document.getElementById('scriptIsTampermonkey').checked = script.isTampermonkey;
+    document.getElementById('scriptContent').value = script.content;
+
+    toggleScriptFormModal();
+}
+
+function deleteScript(id) {
+    if (confirm('Are you sure you want to delete this script?')) {
+        scripts = scripts.filter(s => s.id != id);
+        localStorage.setItem('scripts', JSON.stringify(scripts));
+        renderOwnerDashboard();
+        renderScripts();
+        showToast('Script deleted', 'info');
     }
 }
 

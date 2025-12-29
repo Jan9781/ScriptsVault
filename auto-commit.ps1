@@ -3,7 +3,7 @@
 
 $interval = 30 # Seconds between checks
 $remote = "origin"
-$branch = "master"
+$branch = "main"
 
 Write-Host "Starting auto-commit script..." -ForegroundColor Cyan
 Write-Host "Monitoring changes every $interval seconds."
