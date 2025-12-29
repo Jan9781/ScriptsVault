@@ -20,7 +20,7 @@
     <!-- Fixed paths: using subfolders -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 page-fade-in">
 
     <div id="toastContainer" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-4 pointer-events-none"></div>
 
@@ -188,7 +188,7 @@
                     <a href="javascript:void(0)" onclick="toggleDocsModal()" class="hover:text-indigo-600 transition-colors">Documentation</a>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <button onclick="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors click-scale">
                         <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
                         <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                     </button>
@@ -208,12 +208,11 @@
         <div class="max-w-4xl mx-auto text-center reveal">
             <div class="flex justify-center mb-8">
                 <div class="relative">
-                    <div class="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full logo-pulse"></div>
                     <img src="assets/logo.png" alt="ScriptVault Logo" class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] shadow-2xl relative z-10 logo-float">
                 </div>
             </div>
             <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
-                Elevate Your Web <span class="text-indigo-600">Experience</span>
+                Elevate Your Web <span class="animate-gradient-text">Experience</span>
             </h1>
             <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
                 The ultimate repository for high-performance automation scripts and UI enhancements.
@@ -229,7 +228,10 @@
     <!-- Main Content -->
     <main id="scriptGridSection" class="max-w-7xl mx-auto px-4 py-12">
         <div class="flex items-center justify-between mb-8 reveal">
-            <h2 class="text-2xl font-bold">Featured Scripts</h2>
+            <h2 class="text-2xl font-bold flex items-center gap-2">
+                <span class="w-2 h-8 bg-indigo-600 rounded-full"></span>
+                Featured Scripts
+            </h2>
             <div class="flex gap-2">
                 <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white" data-category="All">All</button>
                 <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-800" data-category="Automation">Automation</button>

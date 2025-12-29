@@ -353,8 +353,8 @@ function renderScripts() {
             </div>
         `;
     } else {
-        grid.innerHTML = filtered.map(script => `
-            <div class="script-card glass p-6 rounded-3xl flex flex-col h-full reveal active">
+        grid.innerHTML = filtered.map((script, index) => `
+            <div class="script-card glass p-6 rounded-3xl flex flex-col h-full stagger-card" style="animation-delay: ${index * 0.1}s">
                 <div class="flex justify-between items-start mb-4">
                     <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
                         <i data-lucide="${script.isTampermonkey ? 'zap' : 'code'}" class="w-6 h-6"></i>
@@ -366,10 +366,10 @@ function renderScripts() {
                 <h3 class="text-xl font-bold mb-2">${script.title}</h3>
                 <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 flex-grow">${script.desc}</p>
                 <div class="flex gap-3 mt-auto">
-                    <button onclick="copyScript(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2">
+                    <button onclick="copyScript(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale">
                         <i data-lucide="copy" class="w-4 h-4"></i> Copy Code
                     </button>
-                    <a href="${script.url}" target="_blank" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <a href="${script.url}" target="_blank" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors click-scale">
                         <i data-lucide="external-link" class="w-4 h-4"></i>
                     </a>
                 </div>
