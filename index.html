@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScriptVault | Premium Repository</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+        }
+    </script>
+
+    <!-- Fixed paths: removed css/ prefix -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+
+    <div id="toastContainer" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-4 pointer-events-none"></div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Welcome Back</h2>
+                    <button onclick="toggleLoginModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <form id="loginForm" onsubmit="handleAuth(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email Address</label>
+                        <input type="email" id="authEmail" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentation Modal -->
+    <div id="docsModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Documentation</h2>
+                <button onclick="toggleDocsModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto prose dark:prose-invert max-w-none">
+                <h3>Getting Started</h3>
+                <p>Welcome to ScriptVault. To use these scripts, we recommend using a userscript manager like Tampermonkey.</p>
+                <ul>
+                    <li><strong>Step 1:</strong> Install Tampermonkey extension.</li>
+                    <li><strong>Step 2:</strong> Find a script you like and click "Get Script".</li>
+                    <li><strong>Step 3:</strong> Create a new script in Tampermonkey and paste the code.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2 font-bold text-xl tracking-tight">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <span>ScriptVault</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                    <a href="#" class="hover:text-indigo-600 transition-colors">Browse</a>
+                    <a href="javascript:void(0)" onclick="toggleDocsModal()" class="hover:text-indigo-600 transition-colors">Documentation</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    <div id="authContainer"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-32 pb-16 px-4 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+            <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/20 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-400/20 rounded-full blur-[120px]"></div>
+        </div>
+        
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+                Elevate Your Web <span class="text-indigo-600">Experience</span>
+            </h1>
+            <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
+                The ultimate repository for high-performance automation scripts and UI enhancements.
+            </p>
+            
+            <div class="max-w-xl mx-auto relative mb-12">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                <input type="text" id="searchInput" placeholder="Search for scripts..." class="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="scriptGridSection" class="max-w-7xl mx-auto px-4 py-12">
+        <div class="flex items-center justify-between mb-8 reveal">
+            <h2 class="text-2xl font-bold">Featured Scripts</h2>
+            <div class="flex gap-2">
+                <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white" data-category="All">All</button>
+                <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-800" data-category="Automation">Automation</button>
+                <button class="filter-btn px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-800" data-category="UI/UX">UI/UX</button>
+            </div>
+        </div>
+
+        <div id="scriptGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm mb-8">© 2024 ScriptVault Repository. All rights reserved.</p>
+            <div class="flex justify-center gap-6">
+                <button onclick="showToast('Twitter link coming soon', 'info')" class="text-slate-400 hover:text-indigo-600 transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></button>
+                <button onclick="showToast('GitHub link coming soon', 'info')" class="text-slate-400 hover:text-indigo-600 transition-colors"><i data-lucide="github" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Fixed path: removed js/ prefix -->
+    <script src="main.js" defer></script>
+</body>
+</html>
