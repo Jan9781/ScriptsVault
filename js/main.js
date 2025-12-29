@@ -429,47 +429,62 @@ function renderScripts() {
             const tags = script.tags || [];
             
             return `
-                <div class="script-card glass rounded-3xl flex flex-col h-full stagger-card overflow-hidden" style="animation-delay: ${index * 0.1}s">
+                <div class="script-card glass-card card-inner-glow rounded-3xl flex flex-col h-full stagger-card overflow-hidden group hover-glow" style="animation-delay: ${index * 0.1}s">
                     ${script.previewUrl ? `
-                        <div class="h-40 w-full overflow-hidden relative group">
-                            <img src="${script.previewUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.style.display='none'">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
-                        </div>
-                    ` : ''}
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400">
-                                <i data-lucide="${script.isTampermonkey ? 'zap' : 'code'}" class="w-6 h-6"></i>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="toggleFavorite(${script.id})" class="p-2 rounded-xl ${isFavorited ? 'bg-red-50 text-red-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} hover:scale-110 transition-all">
+                        <div class="h-48 w-full overflow-hidden relative">
+                            <img src="${script.previewUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.style.display='none'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+                            <div class="absolute top-4 right-4">
+                                <button onclick="toggleFavorite(${script.id})" class="p-2.5 rounded-2xl backdrop-blur-md ${isFavorited ? 'bg-red-500 text-white' : 'bg-white/20 text-white'} hover:scale-110 transition-all shadow-lg">
                                     <i data-lucide="heart" class="w-4 h-4 ${isFavorited ? 'fill-current' : ''}"></i>
                                 </button>
-                                <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-500">
-                                    ${script.category}
-                                </span>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">${script.title}</h3>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-grow">${script.desc}</p>
+                    ` : `
+                        <div class="h-2 w-full bg-indigo-600/20 group-hover:bg-indigo-600 transition-colors"></div>
+                    `}
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="p-3.5 bg-indigo-600/10 dark:bg-indigo-400/10 rounded-2xl text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                <i data-lucide="${script.isTampermonkey ? 'zap' : 'code'}" class="w-6 h-6"></i>
+                            </div>
+                            ${!script.previewUrl ? `
+                                <button onclick="toggleFavorite(${script.id})" class="p-2.5 rounded-2xl ${isFavorited ? 'bg-red-50 text-red-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} hover:scale-110 transition-all">
+                                    <i data-lucide="heart" class="w-4 h-4 ${isFavorited ? 'fill-current' : ''}"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500/80 dark:text-indigo-400/80">${script.category}</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${script.title}</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">${script.desc}</p>
                         
                         ${tags.length > 0 ? `
-                            <div class="flex flex-wrap gap-2 mb-6">
-                                ${tags.map(tag => `<span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md">#${tag}</span>`).join('')}
+                            <div class="flex flex-wrap gap-2 mb-8">
+                                ${tags.map(tag => `<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700/50">#${tag}</span>`).join('')}
                             </div>
                         ` : ''}
 
-                        <div class="flex items-center justify-between mb-6 text-xs text-slate-400 font-medium">
-                            <span class="flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> ${script.copyCount || 0} copies</span>
-                            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(script.id).toLocaleDateString()}</span>
+                        <div class="flex items-center justify-between mb-8 p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Usage</span>
+                                <span class="text-sm font-bold flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-500"></i> ${script.copyCount || 0}</span>
+                            </div>
+                            <div class="w-px h-8 bg-slate-200 dark:bg-slate-800"></div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Added</span>
+                                <span class="text-sm font-bold flex items-center gap-1.5">${new Date(script.id).toLocaleDateString()} <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-500"></i></span>
+                            </div>
                         </div>
 
                         <div class="flex gap-3 mt-auto">
-                            <button onclick="viewCode(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale">
-                                <i data-lucide="eye" class="w-4 h-4"></i> View Code
+                            <button onclick="viewCode(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale shadow-lg shadow-indigo-200 dark:shadow-none">
+                                <i data-lucide="eye" class="w-4 h-4"></i> View Source
                             </button>
-                            <a href="${script.url}" target="_blank" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors click-scale">
-                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <a href="${script.url}" target="_blank" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-500 transition-all click-scale group/link">
+                                <i data-lucide="external-link" class="w-5 h-5 group-hover/link:text-indigo-500 transition-colors"></i>
                             </a>
                         </div>
                     </div>
