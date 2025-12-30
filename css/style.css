@@ -94,6 +94,15 @@
     animation: logoFloat 3s ease-in-out infinite;
 }
 
+.logo-glow {
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.3));
+    transition: filter 0.5s ease;
+}
+
+.logo-glow:hover {
+    filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.6));
+}
+
 @keyframes logoFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }

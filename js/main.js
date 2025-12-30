@@ -392,6 +392,14 @@ function setupEventListeners() {
             searchQuery = e.target.value.toLowerCase();
             renderScripts();
         });
+
+        // Keyboard shortcut (/) to focus search
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
     }
 
     // Explore Button
@@ -399,6 +407,22 @@ function setupEventListeners() {
     if (exploreBtn) {
         exploreBtn.addEventListener('click', () => {
             document.getElementById('scriptGridSection').scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+
+    // Scroll to Top
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    if (scrollToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                scrollToTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+            } else {
+                scrollToTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 }
@@ -483,7 +507,10 @@ function renderScripts() {
                             <button onclick="viewCode(${script.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 click-scale shadow-lg shadow-indigo-200 dark:shadow-none">
                                 <i data-lucide="eye" class="w-4 h-4"></i> View Source
                             </button>
-                            <a href="${script.url}" target="_blank" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-500 transition-all click-scale group/link">
+                            <button onclick="copyScript(${script.id})" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-500 transition-all click-scale group/copy" title="Quick Copy">
+                                <i data-lucide="copy" class="w-5 h-5 group-hover/copy:text-indigo-500 transition-colors"></i>
+                            </button>
+                            <a href="${script.url}" target="_blank" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-500 transition-all click-scale group/link" title="External Link">
                                 <i data-lucide="external-link" class="w-5 h-5 group-hover/link:text-indigo-500 transition-colors"></i>
                             </a>
                         </div>

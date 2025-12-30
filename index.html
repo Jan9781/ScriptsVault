@@ -277,7 +277,7 @@
             <div class="flex justify-center mb-8">
                 <div class="relative group">
                     <div class="absolute inset-0 bg-indigo-500/30 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                    <img src="assets/logo.png" alt="ScriptVault Logo" class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] shadow-2xl relative z-10 logo-float cursor-pointer hover:scale-110 transition-transform duration-500">
+                    <img src="assets/logo.png" alt="ScriptVault Logo" class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] shadow-2xl relative z-10 logo-float logo-glow cursor-pointer hover:scale-110 transition-transform duration-500">
                 </div>
             </div>
             <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
@@ -289,7 +289,11 @@
             
             <div class="max-w-xl mx-auto relative mb-12">
                 <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
-                <input type="text" id="searchInput" placeholder="Search for scripts..." class="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <input type="text" id="searchInput" placeholder="Search for scripts..." class="w-full pl-12 pr-16 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pointer-events-none">
+                    <span class="text-[10px] font-bold text-slate-400">Press</span>
+                    <kbd class="text-[10px] font-bold text-slate-600 dark:text-slate-300">/</kbd>
+                </div>
             </div>
         </div>
     </header>
@@ -342,5 +346,10 @@
 
     <!-- Fixed path: using js/ folder -->
     <script src="js/main.js" defer></script>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="fixed bottom-8 left-8 z-50 p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 opacity-0 translate-y-10 pointer-events-none transition-all duration-300 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white click-scale">
+        <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    </button>
 </body>
 </html>
